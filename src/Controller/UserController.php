@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends AbstractController
 {
     /**
-     * @Route("/user", name="list_user", methods={"GET"})
+     * @Route("/user", name="user_list", methods={"GET"})
      * @IsGranted("ROLE_ADMIN")
      */
     public function index()
@@ -23,7 +23,7 @@ class UserController extends AbstractController
     }
 
 	/**
-	 * @Route("/user/{id}", name="get_user", methods={"GET"}, requirements={"id"="\d+"})
+	 * @Route("/user/{id}", name="user_get", methods={"GET"}, requirements={"id"="\d+"})
 	 */
     public function user(User $user)
     {
@@ -31,7 +31,7 @@ class UserController extends AbstractController
     }
 
 	/**
-	 * @Route("/user", name="create_user", methods={"POST"})
+	 * @Route("/user", name="user_create", methods={"POST"})
 	 * @IsGranted("ROLE_ADMIN")
 	 */
     public function userCreate(Request $request, SerializerInterface $serializer)
