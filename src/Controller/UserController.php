@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,9 +18,9 @@ class UserController extends AbstractController
      * @Route("/user", name="user_list", methods={"GET"})
      * @IsGranted("ROLE_ADMIN")
      */
-    public function index()
+    public function index(UserRepository $repository)
     {
-    	$users = $this->getDoctrine()->getRepository(User::class)->findAll();
+    	$users = $repository->findAll();
 		return $this->json($users, 200, [], ["groups" => "default"]);
     }
 
@@ -34,7 +36,7 @@ class UserController extends AbstractController
 	 * @Route("/user", name="user_create", methods={"POST"})
 	 * @IsGranted("ROLE_ADMIN")
 	 */
-    public function userCreate(Request $request, SerializerInterface $serializer)
+    public function userCreate(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
     	if($request->getContentType() !== "json")
     		throw new BadRequestHttpException(sprintf("Bad content-type: %s", $request->getContentType()));
@@ -42,9 +44,8 @@ class UserController extends AbstractController
     	$json = $request->getContent();
     	$user = $serializer->deserialize($json, User::class, 'json');
 
-    	$em = $this->getDoctrine()->getManager();
-    	$em->persist($user);
-    	$em->flush();
+    	$entityManager->persist($user);
+    	$entityManager->flush();
 
     	return $this->json($user, 201, [], ["groups" => "default"]);
     }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Todo;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,10 +31,10 @@ class TodoController extends AbstractController
 	 * @Route("/todo", name="todo_create", methods={"POST"})
 	 * @IsGranted("ROLE_USER")
 	 */
-	public function todoCreate(Request $request, SerializerInterface $serializer)
+	public function todoCreate(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
 	{
 		if($request->getContentType() !== "json")
-    		throw new BadRequestHttpException(sprintf("Bad content-type: %s", $request->getContentType()));
+			throw new BadRequestHttpException(sprintf("Bad content-type: %s", $request->getContentType()));
 
 		$json = $request->getContent();
 
@@ -44,10 +45,9 @@ class TodoController extends AbstractController
 		$user = $this->getUser();
 		$user->addTodo($todo);
 
-		$em = $this->getDoctrine()->getManager();
-		$em->persist($todo);
-		$em->persist($user);
-		$em->flush();
+		$entityManager->persist($todo);
+		$entityManager->persist($user);
+		$entityManager->flush();
 
 		return $this->json($todo, Response::HTTP_OK, [], ["groups" => "default"]);
 	}
